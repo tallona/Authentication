@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<!DOCTYPE modification SYSTEM "http://www.simplemachines.org/xml/modification">
+<modification xmlns="http://www.simplemachines.org/xml/modification" xmlns:smf="http://www.simplemachines.org/">
+	<id>ziycon:authentication</id>
+	<version>0.3</version>
+	<file name="$languagedir/Help.english.php" error="fatal">
+		<operation>
+			<search position="end" />
+			<add><![CDATA[
+// Authentication Help
+$helptxt['ldap_dn'] = 'Distinguished Name or DN as it is commonly known is the name that uniquely identifies an entry in the directory. A DN is made up of attribute=value pairs which are separated by commas. For example, test.ldap.com would be entered as: DC=test,DC=ldap,DC=com';
+$helptxt['ldap_username_extension'] = 'Used if the login entered requires additional details (username -> username@example.com).';
+$helptxt['ldap_search_filter'] = 'Search filter string where %s designates the login of the user.';
+$helptxt['ldap_default_group'] = 'Default group to set if none were successfully found.';
+$helptxt['ldap_primary_membergroup'] = 'Membergroups available to set for sync\'ed users primary membergroup.']]></add>
+		</operation>
+	</file>
+	<file name="$sourcedir/LogInOut.php">
+		<operation>
+			<search position="replace"><![CDATA[openid_uri, passwd_flood]]></search>
+			<add><![CDATA[openid_uri, passwd_flood, auth_type]]></add>
+		</operation>
+		<operation>
+			<search position="replace"><![CDATA[			passwd_flood]]></search>
+			<add><![CDATA[			passwd_flood, auth_type]]></add>
+		</operation>
+		<operation>
+			<search position="after"><![CDATA[		if (strpos(strtolower(PHP_OS), 'win') !== 0)
+		{
+			require_once($sourcedir . '/Subs-Compat.php');
+			$other_passwords[] = sha1_smf(strtolower($user_settings['member_name']) . un_htmlspecialchars($_POST['passwrd']));
+		}]]></search>
+			<add><![CDATA[		
+
+		// Allows mods to easily extend the $other_passwords array
+		call_integration_hook('integrate_other_passwords', array(&$other_passwords));]]></add>
+		</operation>
+	</file>
+	<file name="$sourcedir/Subs-Members.php">
+		<operation>
+			<search position="replace"><![CDATA[	if (empty($regOptions['auth_method']) || !in_array($regOptions['auth_method'], array('password', 'openid')))]]></search>
+			<add><![CDATA[	if (empty($regOptions['auth_method']) || !in_array($regOptions['auth_method'], array('password', 'openid', 'ldap')))]]></add>
+		</operation>
+		<operation>
+			<search position="replace"><![CDATA[			$regOptions['auth_method'] = 'openid';]]></search>
+			<add><![CDATA[			$regOptions['auth_method'] = 'openid';
+			elseif (isset($regOptions['auth_method']) && $regOptions['auth_method'] == 'ldap')
+			$regOptions['auth_method'] = 'ldap';]]></add>
+		</operation>
+		<operation>
+			<search position="after"><![CDATA[		'openid_uri' => (!empty($regOptions['openid']) ? $regOptions['openid'] : ''),]]></search>
+			<add><![CDATA[		'auth_type' => ($regOptions['auth_method'] == 'ldap'?1:0),]]></add>
+		</operation>
+	</file>
+	<file name="$themedir/index.template.php">
+		<operation>
+			<search position="replace"><![CDATA[function template_body_above()
+{
+	global $context, $settings, $options, $scripturl, $txt, $modSettings;]]></search>
+			<add><![CDATA[function template_body_above()
+{
+	global $context, $settings, $options, $scripturl, $txt, $modSettings;
+
+	// Disable hashing login password.
+	$context['disable_login_hashing'] = true;
+]]></add>
+		</operation>
+	</file>
+</modification>

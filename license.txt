@@ -1,0 +1,18 @@
+Disclaimer:
+
+This modification is provided "as is" and without any warranty. Any express or implied warranties, including, but not limited to, the implied warranties of merchantability and fitness for a particular purpose are disclaimed. In no event shall the authors, suppliers and/or copyright holders be liable to any party for any direct, indirect, incidental, special, exemplary, or consequential damages arising in any way out of the use or misuse of the modification. 
+
+Agreement:
+
+- All copyright notices contained in the headers of the source files provided in the modification shall remain intact without any modifications.
+- Permission is granted to the user to use the modification on as many forum installs as they want.
+- Distribution of this modification is allowed.
+- You may not modify the modification in away way what so ever.
+- The copyright holder retains the right to change this agreement, or parts of it, without any prior notice, at any time. It is the user's responsibility to make sure their knowledge of the license agreement is up to date.
+- Upon neglecting one or more clauses of the above, the license will automatically terminate. Upon termination the user must refrain from using the modification immediately.
+- The copyright holders shall take action against any license agreement breach at their discretion.
+- All ownership & contractual rights of any 3rd-party modification that may be provided with this modification remain in possession of their respective copyright holders. 
+- You are not allowed to sell or lease the modification, or any part, you are not allowed to sell anything based on the modification, or code that requires the modification to be installed, without the copyright holders' written consent.
+- You shall not install and/or use any modification on a forum that encourages and/or endorses violence, hate and/or any kind of bigotry.
+- Failure to comply to any of this agreement will automatically terminate your right to use this modification.
+- You automatically agree to this license as soon as the modification has been downloaded.

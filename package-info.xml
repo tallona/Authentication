@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<!DOCTYPE package-info SYSTEM "http://www.simplemachines.org/xml/package-info">
+<package-info xmlns="http://www.simplemachines.org/xml/package-info" xmlns:smf="http://www.simplemachines.org/">
+	<id>ziycon:authentication</id>
+	<name>Authentication</name>
+	<version>0.3</version>
+	<type>modification</type>
+	<install for="2.0-2.0.99">
+		<readme parsebbc="true">readme.txt</readme>
+		<modification>modification_2_0.xml</modification>
+		<require-file name="Subs-Authentication.php" destination="$sourcedir" />
+		<require-file name="ManageAuthentication.php" destination="$sourcedir" />
+		<require-file name="ManageAuthentication.template.php" destination="$themedir" />
+		<require-file name="ManageAuthentication.english.php" destination="$themedir/languages" />
+		<code>install.php</code>
+		<database>install-database.php</database>
+	</install>
+	<uninstall for="2.0-2.0.99">
+		<modification reverse="true">modification_2_0.xml</modification>
+		<remove-file name="$sourcedir/Subs-Authentication.php" />
+		<remove-file name="$sourcedir/ManageAuthentication.php" />
+		<remove-file name="$themedir/ManageAuthentication.template.php" />
+		<remove-file name="$themedir/languages/ManageAuthentication.english.php" />
+		<code>uninstall.php</code>
+	</uninstall>
+</package-info>
