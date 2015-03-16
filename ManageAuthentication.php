@@ -10,10 +10,12 @@
 * @version 0.3
 */
 
-if (!defined('SMF'))
+if (!defined('SMF')) {
 	die('Hacking attempt...');
+}
 
-function ManageAuthentication() {	
+function ManageAuthentication()
+{	
 	global $context, $txt, $scripturl, $modSettings, $sourcedir;
 	
 	// This is just to keep the ldap settings more secure.
@@ -52,7 +54,8 @@ function ManageAuthentication() {
 /**
  * Syncing SMF members table with active directory
  */
-function SyncLDAP() {
+function SyncLDAP()
+{
 	global $context, $scripturl, $modSettings, $sourcedir;
 
 	$context['body'] = null;
@@ -61,11 +64,11 @@ function SyncLDAP() {
 	require_once($sourcedir . '/Errors.php');
 	
 	$context['post_url'] = $scripturl . '?action=admin;area=auth;sa=sync_ldap;run';
-	if (isset($_REQUEST['run']))
+	if (isset($_REQUEST['run'])) {
 		$context['running'] = true;
+	}
 	
-	if ($context['running'])
-	{
+	if ($context['running']) {
 		require_once($sourcedir . '/Subs-Authentication.php');
 		contactLDAPServer('sync');
 	}
@@ -76,7 +79,8 @@ function SyncLDAP() {
 /**
  * Set LDAP settings
  */
-function SettingsLDAP($return_config = false) {
+function SettingsLDAP($return_config = false)
+{
 	global $context, $txt, $scripturl, $smcFunc;
 	
 	// Get membergroups
@@ -92,8 +96,9 @@ function SettingsLDAP($return_config = false) {
 	
 	$vMembergroups[0] = $txt['ldap_membergroup_default'];
 	
-	while ($vRow = $smcFunc['db_fetch_assoc']($vRequest))
+	while ($vRow = $smcFunc['db_fetch_assoc']($vRequest)) {
 		$vMembergroups[$vRow['id_group']] = $vRow['group_name'];
+	}
 	
 	$smcFunc['db_free_result']($vRequest);
 
@@ -119,16 +124,16 @@ function SettingsLDAP($return_config = false) {
 		array('select', 'ldap_primary_membergroup', $vMembergroups),
 	);
 
-	if ($return_config)
+	if ($return_config) {
 		return $config_vars;
+	}
 		
 	// Setup the template stuff.
 	$context['post_url'] = $scripturl . '?action=admin;area=auth;sa=settings_ldap;save';
 	$context['settings_title'] = $txt['ldap_settings_title'];
 
 	// Saving settings?
-	if (isset($_REQUEST['save']))
-	{
+	if (isset($_REQUEST['save'])) {
 		saveDBSettings($config_vars);
 		redirectexit('action=admin;area=auth;sa=settings_ldap;' . $context['session_var'] . '=' . $context['session_id'] . ';msg=' . (!empty($context['settings_message']) ? $context['settings_message'] : 'core_settings_saved'));
 	}
