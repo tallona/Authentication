@@ -56,4 +56,7 @@ $txt['save_ldap_settings'] = 'Save';
 $txt['ldap_primary_membergroup'] = 'Target Membergroup';
 $txt['ldap_membergroup_default'] = '(no primary membergroup)';
 
+//Errors in configuration
+$txt['ldap_config_disabled'] = 'LDAP support is disabled, check configurations';
+$txt['ldap_php_disabled'] = 'LDAP functions in PHP are not enabled! This MOD can\'t work without those';
 ?>

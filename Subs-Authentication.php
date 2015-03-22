@@ -61,7 +61,8 @@ function authenticationLoginHook()
 	$user_settings = $smcFunc['db_fetch_assoc']($request);
 	$smcFunc['db_free_result']($request);
 
-	if ((int) $user_settings['auth_type'] === 1) {
+	if ($user_settings['auth_type'] == 1)
+	{
 		$login_details = array(
 			'username' => $_POST['user'],
 			'password' => $_POST['passwrd'],
@@ -100,6 +101,9 @@ function contactLDAPServer($type = '', $login_details = array())
 {
 	global $context, $txt, $smcFunc, $scripturl, $modSettings, $sourcedir;
 	
+	if (!isset($txt['ldap_bind_failed'])) //Maybe we need to reload our language?
+		loadLanguage('ManageAuthentication');
+
 	$vUserCount = 0;
 	$vUserList = null;
 	$vProcessing = null;
@@ -108,19 +112,27 @@ function contactLDAPServer($type = '', $login_details = array())
 	if (isset($modSettings['ldap_enabled']) && $modSettings['ldap_enabled']) {
 		// Set LDAP connection
 		if (isset($modSettings['ldap_host']) && isset($modSettings['ldap_port'])) {
-			$ldapconn = @ldap_connect($modSettings['ldap_host'], $modSettings['ldap_port']);
-	
+			$ldapconn = ldap_connect($modSettings['ldap_host'], $modSettings['ldap_port']);
+
 			// Did we connect?
 			if ($ldapconn) {
 				// Setup LDAP options
 				ldap_set_option($ldapconn, LDAP_OPT_PROTOCOL_VERSION, $modSettings['ldap_protocol_version']);
 				ldap_set_option($ldapconn, LDAP_OPT_REFERRALS, isset($modSettings['ldap_referrals']) ? $modSettings['ldap_referrals'] : 0);
-				if (isset($modSettings['ldap_user']) && !empty($modSettings['ldap_user']) && isset($modSettings['ldap_username_extension']) && isset($modSettings['ldap_password'])) {
-					$ldapbind = @ldap_bind($ldapconn, $modSettings['ldap_user'].$modSettings['ldap_username_extension'], $modSettings['ldap_password']);
-				} else {
-					$ldapbind = @ldap_bind($ldapconn);
+				if (!empty($modSettings['ldap_user']) && !empty($modSettings['ldap_password']))
+				{
+					//For the "bind" username we need the complete DN...
+					$user = 'cn=';
+					$user .= $modSettings['ldap_user'] . (empty($modSettings['ldap_username_extension']) ? '' : $modSettings['ldap_username_extension']);
+					//$user .= empty($modSettings['ldap_default_group']) ? '' : ',ou=' . $modSettings['ldap_default_group'];
+					$user .= empty($modSettings['ldap_dn']) ? '' : ',' . $modSettings['ldap_dn'];
+					$ldapbind = ldap_bind($ldapconn, $user, $modSettings['ldap_password']);
 				}
-					
+				else
+				{
+					$ldapbind = ldap_bind($ldapconn);
+				}
+
 				if ($ldapbind) {
 					// Are we syncing members?
 					if ($type == 'sync') {			
@@ -128,17 +140,17 @@ function contactLDAPServer($type = '', $login_details = array())
 						if (isset($modSettings['ldap_dn']) && isset($modSettings['ldap_search_filter'])) {
 							$ldapsearch = @ldap_search($ldapconn, $modSettings['ldap_dn'], $modSettings['ldap_search_filter']);
 						}
-						
+
 						if ($ldapsearch) {
 							// Search of members successful? Get results and count
 							$ldapCount = @ldap_count_entries($ldapconn, $ldapsearch);
-				
+
 							if ($ldapCount >= 1) {
 								// Get all entries
 								$ldapEntries = ldap_get_entries($ldapconn, $ldapsearch);
-				
+
 								require_once($sourcedir . '/Subs-Members.php');
-				
+
 								// Process each result found
 								for ($i = 0; $i < count($ldapEntries); $i++) {
 									if (!empty($ldapEntries[$i]) && isset($modSettings['ldap_attrib_email']) && !empty($ldapEntries[$i][$modSettings['ldap_attrib_email']][0])) {
@@ -157,24 +169,25 @@ function contactLDAPServer($type = '', $login_details = array())
 												'check_email_ban' => false,
 												'send_welcome_email' => false,
 												'require' => 'nothing',
-												'memberGroup' => (int) $modSettings['ldap_primary_membergroup'],
+												'memberGroup' => !empty($modSettings['ldap_primary_membergroup']) ? (int) $modSettings['ldap_primary_membergroup'] : 0,
 												'auth_method' => 'ldap',
+												'hide_email' => 1,
 											);
-														
+
 											if (!registerMember($regOptions, true)) {
 												log_error($txt['ldap_unable_to_add_member'].$ldapEntries[$i][$modSettings['ldap_attrib_user_login']][0]);
 											}
 										} else {
 											if (isset($modSettings['ldap_attrib_user_login']) && isset($modSettings['ldap_attrib_email'])) {
-												$vProcessing = $ldapEntries[$i][$modSettings['ldap_attrib_user_login']][0].' (U)';												
+												$vProcessing = $ldapEntries[$i][$modSettings['ldap_attrib_user_login']][0].' (U)';
 												
 												// Update existing member
 												$updateData = array(
 													'email_address' => $ldapEntries[$i][$modSettings['ldap_attrib_email']][0],
 												);
-						
+
 												$memberID = getMemberID($ldapEntries[$i][$modSettings['ldap_attrib_user_login']][0]);
-											
+
 												if (updateMemberData($memberID , $updateData)) {
 													log_error($txt['ldap_unable_to_update_member'].$memberID.'.');
 												}
@@ -185,14 +198,14 @@ function contactLDAPServer($type = '', $login_details = array())
 											}
 										}
 									}
-									
+
 									// Check if user has already been counted
 									if (!strstr($vUserList, $vProcessing)) {
 										$vUserCount++;
 										$vUserList .= $vProcessing.'<br/>';
 									}
 								}
-				
+
 								$context['body'] = sprintf($txt['ldap_sync_completed'], $vUserCount, $vUserList);
 							} else {
 								ldap_close($ldapconn);

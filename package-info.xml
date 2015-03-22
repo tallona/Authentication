@@ -12,6 +12,7 @@
 		<require-file name="ManageAuthentication.php" destination="$sourcedir" />
 		<require-file name="ManageAuthentication.template.php" destination="$themedir" />
 		<require-file name="ManageAuthentication.english.php" destination="$themedir/languages" />
+		<require-file name="authentication.png" destination="$imagesdir/admin" />
 		<code>install.php</code>
 		<database>install-database.php</database>
 	</install>
@@ -21,6 +22,7 @@
 		<remove-file name="$sourcedir/ManageAuthentication.php" />
 		<remove-file name="$themedir/ManageAuthentication.template.php" />
 		<remove-file name="$themedir/languages/ManageAuthentication.english.php" />
+		<remove-file name="$imagesdir/admin/authentication.png" />
 		<code>uninstall.php</code>
 	</uninstall>
 </package-info>

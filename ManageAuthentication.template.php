@@ -12,7 +12,7 @@
 
 function template_sync_ldap()
 {
-	global $context, $settings, $options, $txt, $scripturl, $db_type, $modSettings;
+	global $context, $settings, $options, $txt, $scripturl, $modSettings;
 
 	// If sync has finished tell the user.
 	if (!empty($context['ldap_sync_finished'])) {
@@ -31,20 +31,39 @@ function template_sync_ldap()
 			<div class="content">';
 
 		// No sysnc running?
-		if (!$context['running']) {
-			echo '
-				<form action="', $context['post_url'], ';', $context['session_var'], '=', $context['session_id'], '" method="post" accept-charset="', $context['character_set'], '">
-					<p>', $txt['ldap_sync_info'], '</p>';
-			
+		if (!$context['running'])
+		{
 			// Is LDAP enabled?
-			if (isset($modSettings['ldap_enabled']) && $modSettings['ldap_enabled']) {
-				echo '<input type="submit" value="', $txt['auth_run_now'], '" class="button_submit" />';
+			if (empty($modSettings['ldap_enabled']))
+			{
+				echo '
+					<div class="errorbox">', $txt['ldap_config_disabled'], '</div>';
+				$errors = true;
 			}
 
-			echo '
-					<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
-				</form>';
-		} else {
+			//More important, does the ldap_connect function exists? If not, this can't work!!!
+			if (!function_exists('ldap_connect'))
+			{
+				echo '
+					<div class="errorbox">', $txt['ldap_php_disabled'], '</div>';
+				$errors = true;
+			}
+			
+			if (empty($errors))
+			{
+
+				echo '
+					<form action="', $context['post_url'], ';', $context['session_var'], '=', $context['session_id'], '" method="post" accept-charset="', $context['character_set'], '">
+						<p>', $txt['ldap_sync_info'], '</p>';
+			
+				echo '
+						<input type="submit" value="', $txt['auth_run_now'], '" class="button_submit" />
+						<input type="hidden" name="', $context['session_var'], '" value="', $context['session_id'], '" />
+					</form>';
+			}
+		}
+		else
+		{
 			echo $context['body'];
 		}
 
